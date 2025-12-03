@@ -47,4 +47,55 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+
+                <executions>
+                    <execution>
+                        <id>generate-class</id>
+                        <goals><goal>run</goal></goals>
+                        <configuration>
+                            <target>
+                                <!-- solution class -->
+                                <mkdir dir="src/main/java/com/adventofcode/day${dayNumber}" />
+                                <copy file="src/main/resources/templates/solution.java"
+                                      tofile="src/main/java/com/adventofcode/day${dayNumber}/${className}.java">
+                                    <filterset>
+                                        <filter token="dayNumber" value="${dayNumber}"/>
+                                        <filter token="className" value="${className}"/>
+                                    </filterset>
+                                </copy>
+
+                                <!-- test class -->
+                                <mkdir dir="src/test/java/com/adventofcode/day${dayNumber}" />
+                                <copy file="src/main/resources/templates/test.java"
+                                      tofile="src/test/java/com/adventofcode/day${dayNumber}/${className}Test.java">
+                                    <filterset>
+                                        <filter token="dayNumber" value="${dayNumber}"/>
+                                        <filter token="className" value="${className}"/>
+                                    </filterset>
+                                </copy>
+
+                                <!-- input files -->
+                                <mkdir dir="src/test/resources/day${dayNumber}" />
+                                <copy file="src/main/resources/templates/0.in" tofile="src/test/resources/day${dayNumber}/0.in"></copy>
+                                <copy file="src/main/resources/templates/1.in" tofile="src/test/resources/day${dayNumber}/1.in"></copy>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
