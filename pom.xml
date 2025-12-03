@@ -63,11 +63,13 @@
                 <executions>
                     <execution>
                         <id>generate-class</id>
-                        <goals><goal>run</goal></goals>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
                         <configuration>
                             <target>
                                 <!-- solution class -->
-                                <mkdir dir="src/main/java/com/adventofcode/day${dayNumber}" />
+                                <mkdir dir="src/main/java/com/adventofcode/day${dayNumber}"/>
                                 <copy file="src/main/resources/templates/solution.java"
                                       tofile="src/main/java/com/adventofcode/day${dayNumber}/${className}.java">
                                     <filterset>
@@ -77,7 +79,7 @@
                                 </copy>
 
                                 <!-- test class -->
-                                <mkdir dir="src/test/java/com/adventofcode/day${dayNumber}" />
+                                <mkdir dir="src/test/java/com/adventofcode/day${dayNumber}"/>
                                 <copy file="src/main/resources/templates/test.java"
                                       tofile="src/test/java/com/adventofcode/day${dayNumber}/${className}Test.java">
                                     <filterset>
@@ -87,9 +89,13 @@
                                 </copy>
 
                                 <!-- input files -->
-                                <mkdir dir="src/test/resources/day${dayNumber}" />
-                                <copy file="src/main/resources/templates/0.in" tofile="src/test/resources/day${dayNumber}/0.in"></copy>
-                                <copy file="src/main/resources/templates/1.in" tofile="src/test/resources/day${dayNumber}/1.in"></copy>
+                                <mkdir dir="src/test/resources/day${dayNumber}"/>
+                                <copy file="src/main/resources/templates/0.in"
+                                      tofile="src/test/resources/day${dayNumber}/0.in">
+                                </copy>
+                                <copy file="src/main/resources/templates/1.in"
+                                      tofile="src/test/resources/day${dayNumber}/1.in">
+                                </copy>
                             </target>
                         </configuration>
                     </execution>
