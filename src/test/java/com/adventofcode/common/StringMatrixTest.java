@@ -73,4 +73,21 @@ public class StringMatrixTest {
         // then
         assertThatThrownBy(() -> new StringMatrix(input)).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Line number 2 has length of 3");
     }
+
+    @Test
+    public void shouldProvideProperPositions() {
+        // given
+        String input = """
+                ab
+                ef
+                """;
+
+        // then
+        assertThat(new StringMatrix(input).streamPositions().toList()).containsExactlyInAnyOrder(
+                new Pair<>(0, 0),
+                new Pair<>(0, 1),
+                new Pair<>(1, 0),
+                new Pair<>(1, 1)
+        );
+    }
 }

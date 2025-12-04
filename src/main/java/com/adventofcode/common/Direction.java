@@ -2,9 +2,13 @@ package com.adventofcode.common;
 
 public enum Direction {
     TOP(new Pair<>(0, -1)),
+    TOP_RIGHT(new Pair<>(1, -1)),
     RIGHT(new Pair<>(1, 0)),
+    DOWN_RIGHT(new Pair<>(1, 1)),
     DOWN(new Pair<>(0, 1)),
-    LEFT(new Pair<>(-1, 0));
+    DOWN_LEFT(new Pair<>(-1, 1)),
+    LEFT(new Pair<>(-1, 0)),
+    TOP_LEFT(new Pair<>(-1, -1));
 
     private final Pair<Integer> vector;
 
@@ -22,6 +26,7 @@ public enum Direction {
             case RIGHT -> DOWN;
             case DOWN -> LEFT;
             case LEFT -> TOP;
+            default -> throw new UnsupportedOperationException();
         };
     }
 
@@ -39,6 +44,7 @@ public enum Direction {
             case LEFT -> DOWN;
             case DOWN -> RIGHT;
             case RIGHT -> TOP;
+            default -> throw new UnsupportedOperationException();
         };
     }
 
@@ -56,6 +62,7 @@ public enum Direction {
             case LEFT -> RIGHT;
             case DOWN -> TOP;
             case RIGHT -> LEFT;
+            default -> throw new UnsupportedOperationException();
         };
     }
 
