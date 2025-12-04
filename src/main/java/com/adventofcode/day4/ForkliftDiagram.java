@@ -22,9 +22,9 @@ class ForkliftDiagram {
     }
 
     private List<Pair<Integer>> filterAccessibleRolls(StringMatrix diagram) {
-        return diagram.streamPositions()
+        return diagram.streamIndices()
                 .filter(p -> "@".equals(diagram.at(p)))
-                .filter(p -> diagram.streamAdjacents(p).filter(a -> "@".equals(diagram.at(a))).count() < 4)
+                .filter(p -> diagram.streamAdjacentIndices(p).filter(a -> "@".equals(diagram.at(a))).count() < 4)
                 .toList();
     }
 }

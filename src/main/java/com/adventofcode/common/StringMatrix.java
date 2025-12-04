@@ -2,7 +2,6 @@ package com.adventofcode.common;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class StringMatrix implements Matrix<String> {
     private final List<String> lines = new ArrayList<>();
@@ -47,21 +46,5 @@ public class StringMatrix implements Matrix<String> {
         }
         String line = lines.get(y);
         lines.set(y, line.substring(0, x) + value + line.substring(x + 1));
-    }
-
-    public Stream<Pair<Integer>> streamPositions() {
-        List<Pair<Integer>> positions = new ArrayList<>();
-        for (int i = 0; i < width(); i++) {
-            for (int j = 0; j < height(); j++) {
-                positions.add(new Pair<>(i, j));
-            }
-        }
-        return positions.stream();
-    }
-
-    public Stream<Pair<Integer>> streamAdjacents(Pair<Integer> position) {
-        return Stream.of(Direction.values())
-                .map(d -> d.moveFrom(position))
-                .filter(p -> p.a() >= 0 && p.a() < width() && p.b() >= 0 && p.b() < height());
     }
 }

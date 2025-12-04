@@ -83,7 +83,7 @@ public class StringMatrixTest {
                 """;
 
         // then
-        assertThat(new StringMatrix(input).streamPositions().toList()).containsExactlyInAnyOrder(
+        assertThat(new StringMatrix(input).streamIndices().toList()).containsExactlyInAnyOrder(
                 new Pair<>(0, 0),
                 new Pair<>(0, 1),
                 new Pair<>(1, 0),

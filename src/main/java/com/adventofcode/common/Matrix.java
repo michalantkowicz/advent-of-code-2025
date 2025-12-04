@@ -21,4 +21,10 @@ public interface Matrix<T> {
                 .mapToObj(i -> IntStream.range(0, height()).mapToObj(j -> new Pair<>(i, j)))
                 .flatMap(Function.identity());
     }
+
+    default Stream<Pair<Integer>> streamAdjacentIndices(Pair<Integer> position) {
+        return Stream.of(Direction.values())
+                .map(d -> d.moveFrom(position))
+                .filter(p -> p.a() >= 0 && p.a() < width() && p.b() >= 0 && p.b() < height());
+    }
 }
