@@ -6,7 +6,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
-import java.util.stream.Gatherers;
 import java.util.stream.Stream;
 
 import static com.adventofcode.TestUtils.getColumns;
