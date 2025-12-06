@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static java.lang.Integer.parseInt;
 
@@ -26,9 +28,15 @@ public class TestUtils {
 
     public static List<String> getColumn(String path, int columnIndex, final String delimiter) {
         String input = readFile(path);
-        List<String> result = new ArrayList<>();
-        input.lines().forEach(line -> result.add(line.split(delimiter)[columnIndex]));
-        return result;
+        return getColumnFromInput(input, columnIndex, delimiter);
+    }
+
+    public static List<List<String>> getColumns(String path) {
+        List<List<String>> columns = new ArrayList<>();
+        final String input = readFile(path).replaceAll("[^\\S\\r\\n]+", " ").lines().map(String::trim).collect(Collectors.joining("\n"));
+        int indices = input.lines().limit(1).mapToInt(l -> l.split(" ").length).sum();
+        IntStream.range(0, indices).forEach(i -> columns.add(getColumnFromInput(input, i, " ")));
+        return columns;
     }
 
     public static List<Integer> getIntColumn(String path, int columnIndex, String delimiter) {
@@ -45,6 +53,10 @@ public class TestUtils {
 
     public static List<Long> getLongColumn(String path, int columnIndex) {
         return getLongColumn(path, columnIndex, "\\s+");
+    }
+
+    private static List<String> getColumnFromInput(String input, int columnIndex, final String delimiter) {
+        return input.lines().map(line -> line.split(delimiter)[columnIndex]).toList();
     }
 
     public static List<String> getLines(String path) {
