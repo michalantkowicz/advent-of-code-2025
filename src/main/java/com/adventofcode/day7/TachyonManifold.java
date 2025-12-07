@@ -28,7 +28,6 @@ class TachyonManifold {
             }
             beams = nextBeams.stream().filter(b -> b >= 0 && b < manifold.width()).collect(Collectors.toSet());
         }
-//        return beams.size();
         return result;
     }
 
