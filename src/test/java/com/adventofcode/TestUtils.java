@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.lang.Integer.parseInt;
+import static java.lang.Long.parseLong;
 
 public class TestUtils {
     public static String readFile(String path) {
@@ -91,6 +92,14 @@ public class TestUtils {
         return new ArrayList<>(
                 readFile(path).lines()
                         .map(line -> new Pair<>(parseInt(line.split(delimiter)[0]), parseInt(line.split(delimiter)[1])))
+                        .toList()
+        );
+    }
+
+    public static List<Pair<Long>> getLongPairs(String path, String delimiter) {
+        return new ArrayList<>(
+                readFile(path).lines()
+                        .map(line -> new Pair<>(parseLong(line.split(delimiter)[0]), parseLong(line.split(delimiter)[1])))
                         .toList()
         );
     }

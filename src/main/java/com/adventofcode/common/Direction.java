@@ -69,4 +69,21 @@ public enum Direction {
     public Pair<Integer> moveFrom(Pair<Integer> position) {
         return new Pair<>(position.a() + this.getVector().a(), position.b() + this.getVector().b());
     }
+    
+    public static Direction detect(Pair<Integer> from, Pair<Integer> to) {
+        if(from.a().equals(to.a())) {
+            if(from.b() < to.b()) {
+                return DOWN;
+            } else if(from.b() > to.b()) {
+                return TOP; 
+            }
+        } else if(from.b().equals(to.b())) {
+            if(from.a() < to.a()) {
+                return RIGHT;
+            } else if(from.a() > to.a()) {
+                return LEFT;
+            }
+        }
+        throw new IllegalStateException("Direction is not straight or there is not line longer than 1 between points");
+    }
 }
