@@ -64,16 +64,18 @@ class RectangleFinder {
 
         Direction lineDirection = Direction.detect(line.a(), line.b());
 
+        boolean result = false;
         if (List.of(Direction.TOP, Direction.DOWN).contains(lineDirection)) {
             boolean maxTopInLine = maxTop > Math.min(ab, bb) && maxTop < Math.max(ab, bb);
             boolean maxBottomInLine = maxBottom > Math.min(ab, bb) && maxBottom < Math.max(ab, bb);
             boolean lineInContainer = maxTop <= Math.min(ab, bb) && maxBottom >= Math.max(ab, bb);
-            return aa >= maxLeft && aa <= maxRight && (maxBottomInLine || maxTopInLine || lineInContainer);
+            result= aa >= maxLeft && aa <= maxRight && (maxBottomInLine || maxTopInLine || lineInContainer);
         } else {
             boolean maxLeftInLine = maxLeft > Math.min(aa, ba) && maxLeft < Math.max(aa, ba);
             boolean maxRightInLine = maxRight > Math.min(aa, ba) && maxRight < Math.max(aa, ba);
             boolean lineInContainer = maxLeft <= Math.min(aa, ba) && maxRight >= Math.max(aa, ba);
-            return line.a().b() >= maxTop && line.a().b() <= maxBottom && (maxLeftInLine || maxRightInLine || lineInContainer);
+            result= line.a().b() >= maxTop && line.a().b() <= maxBottom && (maxLeftInLine || maxRightInLine || lineInContainer);
         }
+        return result;
     }
 }

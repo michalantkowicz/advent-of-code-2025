@@ -48,7 +48,8 @@ class RectangleFinderTest {
     private static Stream<Arguments> provideSecondInput() {
         return Stream.of(
                 Arguments.of("0.in", getIntPairs("/day9/0.in", ","), 24),
-                Arguments.of("1.in", getIntPairs("/day9/1.in", ","), 1468516555)
+                Arguments.of("1.in", getIntPairs("/day9/1.in", ","), 1468516555),
+                Arguments.of("2.in", getIntPairs("/day9/2.in", ","), 80901)
         );
     }
 }
