@@ -10,5 +10,5 @@ mvn -B test --file pom.xml
 # Generate placeholders for a day
 
 ```shell
-mvn antrun:run@generate-class -DdayNumber=100 -DclassName=Solution
+mvn antrun:run@generate-class -DdayNumber=10 -DclassName=Factory
 ```
