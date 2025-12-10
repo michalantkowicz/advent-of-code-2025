@@ -1,39 +1,26 @@
 package com.adventofcode.day10;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 class LightDiagram {
-    Map<Integer, Boolean> diagram = new HashMap<>();
+    int diagram = 0;
 
     LightDiagram(String diagramString) {
-        int i = 0;
-        for (String s : diagramString.substring(1, diagramString.length() - 1).split("")) {
-            if(!".".equals(s) && !"#".equals(s)) {
+        String[] diagramLights = diagramString.substring(1, diagramString.length() - 1).split("");
+        for (int i = 0; i < diagramLights.length; i++) {
+            String s = diagramLights[i];
+            if (!".".equals(s) && !"#".equals(s)) {
                 throw new IllegalArgumentException();
             }
-            this.diagram.put(i++, "#".equals(s));
+            if ("#".equals(s)) {
+                this.diagram |= 1 << i;
+            }
         }
     }
-    
-    boolean isValid(List<List<Integer>> buttons) {
-        Map<Integer, Boolean> result = new HashMap<>();
-        for(int key : diagram.keySet()) {
-            result.put(key, false);
-        }
-        
-        for(List<Integer> button : buttons) {
-            for(int light : button) {
-                result.compute(light, (k, v) -> v == null || !v);
-            }
-        }
-        
-        for(int key : result.keySet()) {
-            if(!result.get(key).equals(diagram.get(key))) {
-                return false;
-            }
-        }
-        return true;
+
+    boolean isValid(List<Integer> buttons) {
+        int result = 0;
+        for (int button : buttons) result ^= button;
+        return this.diagram == result;
     }
 }
