@@ -9,13 +9,12 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.adventofcode.TestUtils.getIntPairs;
-import static com.adventofcode.TestUtils.getLongPairs;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class RectangleFinderTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("provideFirstInput")
-    void firstTestCase(String description, List<Pair<Long>> input, long expected) {
+    void firstTestCase(String description, List<Pair<Integer>> input, long expected) {
         // given
         RectangleFinder solution = new RectangleFinder();
 
@@ -41,8 +40,8 @@ class RectangleFinderTest {
 
     private static Stream<Arguments> provideFirstInput() {
         return Stream.of(
-                Arguments.of("0.in", getLongPairs("/day9/0.in", ","), 50),
-                Arguments.of("1.in", getLongPairs("/day9/1.in", ","), 4750092396L)
+                Arguments.of("0.in", getIntPairs("/day9/0.in", ","), 50),
+                Arguments.of("1.in", getIntPairs("/day9/1.in", ","), 4750092396L)
         );
     }
 

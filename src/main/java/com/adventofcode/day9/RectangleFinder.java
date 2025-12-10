@@ -3,11 +3,12 @@ package com.adventofcode.day9;
 import com.adventofcode.common.Direction;
 import com.adventofcode.common.Pair;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 class RectangleFinder {
-    long findLargest(List<Pair<Long>> tiles) {
+    long findLargest(List<Pair<Integer>> tiles) {
         long result = Long.MIN_VALUE;
         for (int i = 0; i < tiles.size(); i++) {
             for (int j = i + 1; j < tiles.size(); j++) {
@@ -18,63 +19,61 @@ class RectangleFinder {
     }
 
     long findLargestOfRedAndGreen(List<Pair<Integer>> tiles) {
-        Set<Pair<Pair<Integer>>> allRectangles = new HashSet<>();
+        List<Pair<Pair<Integer>>> allRectangles = new ArrayList<>();
         for (int i = 0; i < tiles.size(); i++) {
             for (int j = i + 1; j < tiles.size(); j++) {
                 allRectangles.add(new Pair<>(tiles.get(i), tiles.get(j)));
             }
         }
-        
-        Pair<Integer> current = tiles.getFirst();
-        
-        for(int i = 0; i < tiles.size(); i++) {
-            int next = (i == tiles.size() - 1) ? 0 : (i + 1);
-            Direction direction = Direction.detect(tiles.get(i), tiles.get(next));
-            Direction leftDirection = Direction.detect(tiles.get(i), tiles.get(next)).turnLeft();
-            while(!current.equals(tiles.get(next))) {
-                current = direction.moveFrom(current);
-                if(current.equals(tiles.get(next))) break;
-                Pair<Integer> firstOut = leftDirection.moveFrom(current);
-                allRectangles.removeIf(rectangle -> containsInt(rectangle, new Pair<>(firstOut, firstOut)));
-            }
+        allRectangles.sort(Comparator.comparingLong(this::area).reversed());
+
+        for (int i = 0; i < tiles.size(); i++) {
+            Pair<Integer> current = tiles.get(i);
+            Pair<Integer> next = tiles.get((i + 1) % tiles.size());
+
+            Direction leftDirection = Direction.detect(current, next).turnLeft();
+
+            Pair<Pair<Integer>> line = new Pair<>(
+                    leftDirection.moveFrom((current)),
+                    leftDirection.moveFrom((next))
+            );
+
+            allRectangles.removeIf(rectangle -> intersects(rectangle, line));
         }
-        
-        return allRectangles.stream().mapToLong(this::areaInt).max().getAsLong();
+
+        return allRectangles.stream().mapToLong(this::area).max().orElseThrow();
     }
 
-    private long areaInt(Pair<Pair<Integer>> pair) {
-        Pair<Integer> a = pair.a();
-        Pair<Integer> b = pair.b();
-        return (Math.max(a.a(), b.a()) - Math.min(a.a(), b.a()) + 1) * (Math.max(a.b(), b.b()) - Math.min(a.b(), b.b()) + 1);
-    }
-    
-    private long area(Pair<Pair<Long>> pair) {
-        Pair<Long> a = pair.a();
-        Pair<Long> b = pair.b();
-        return (Math.max(a.a(), b.a()) - Math.min(a.a(), b.a()) + 1) * (Math.max(a.b(), b.b()) - Math.min(a.b(), b.b()) + 1);
+    private long area(Pair<Pair<Integer>> pair) {
+        long aa = (long) pair.a().a();
+        long ab = (long) pair.a().b();
+        long ba = (long) pair.b().a();
+        long bb = (long) pair.b().b();
+        return (Math.max(aa, ba) - Math.min(aa, ba) + 1) * (Math.max(ab, bb) - Math.min(ab, bb) + 1);
     }
 
-    private boolean containsInt(Pair<Pair<Integer>> container, Pair<Pair<Integer>> item) {
-        int containerMaxLeft = Math.min(container.a().a(), container.b().a());
-        int containerMaxRight = Math.max(container.a().a(), container.b().a());
-        int containerMaxTop = Math.min(container.a().b(), container.b().b());
-        int containerMaxBottom = Math.max(container.a().b(), container.b().b());
-        int itemMaxLeft = Math.min(item.a().a(), item.b().a());
-        int itemMaxRight = Math.max(item.a().a(), item.b().a());
-        int itemMaxTop = Math.min(item.a().b(), item.b().b());
-        int itemMaxBottom = Math.max(item.a().b(), item.b().b());
-        return (containerMaxLeft <= itemMaxLeft && containerMaxRight >= itemMaxRight && containerMaxTop <= itemMaxTop && containerMaxBottom >= itemMaxBottom);
-    }
-    
-    private boolean contains(Pair<Pair<Long>> container, Pair<Pair<Long>> item) {
-        long containerMaxLeft = Math.min(container.a().a(), container.b().a());
-        long containerMaxRight = Math.max(container.a().a(), container.b().a());
-        long containerMaxTop = Math.min(container.a().b(), container.b().b());
-        long containerMaxBottom = Math.max(container.a().b(), container.b().b());
-        long itemMaxLeft = Math.min(item.a().a(), item.b().a());
-        long itemMaxRight = Math.max(item.a().a(), item.b().a());
-        long itemMaxTop = Math.min(item.a().b(), item.b().b());
-        long itemMaxBottom = Math.max(item.a().b(), item.b().b());
-        return (containerMaxLeft <= itemMaxLeft && containerMaxRight >= itemMaxRight && containerMaxTop >= itemMaxTop && containerMaxBottom <= itemMaxBottom);
+    private boolean intersects(Pair<Pair<Integer>> container, Pair<Pair<Integer>> line) {
+        int maxLeft = Math.min(container.a().a(), container.b().a());
+        int maxRight = Math.max(container.a().a(), container.b().a());
+        int maxTop = Math.min(container.a().b(), container.b().b());
+        int maxBottom = Math.max(container.a().b(), container.b().b());
+        int aa = line.a().a();
+        int ab = line.a().b();
+        int ba = line.b().a();
+        int bb = line.b().b();
+
+        Direction lineDirection = Direction.detect(line.a(), line.b());
+
+        if (List.of(Direction.TOP, Direction.DOWN).contains(lineDirection)) {
+            boolean maxTopInLine = maxTop > Math.min(ab, bb) && maxTop < Math.max(ab, bb);
+            boolean maxBottomInLine = maxBottom > Math.min(ab, bb) && maxBottom < Math.max(ab, bb);
+            boolean lineInContainer = maxTop <= Math.min(ab, bb) && maxBottom >= Math.max(ab, bb);
+            return aa >= maxLeft && aa <= maxRight && (maxBottomInLine || maxTopInLine || lineInContainer);
+        } else {
+            boolean maxLeftInLine = maxLeft > Math.min(aa, ba) && maxLeft < Math.max(aa, ba);
+            boolean maxRightInLine = maxRight > Math.min(aa, ba) && maxRight < Math.max(aa, ba);
+            boolean lineInContainer = maxLeft <= Math.min(aa, ba) && maxRight >= Math.max(aa, ba);
+            return line.a().b() >= maxTop && line.a().b() <= maxBottom && (maxLeftInLine || maxRightInLine || lineInContainer);
+        }
     }
 }
