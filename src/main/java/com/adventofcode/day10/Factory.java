@@ -43,12 +43,13 @@ class Factory {
         for (JoltageMachine machine : machines) {
             result += calculateMinButtons(machine);
             System.out.println(i++);
+            CACHE.clear();
         }
         return result;
     }
 
     private int calculateMinButtons(JoltageMachine machine) {
-        int min = 100;
+        int min = 1000;
         for (Button button : machine.buttons()) {
             if(machine.maxPerButton().get(button.id()) > 0) {
                 min = Math.min(min, inspect(machine, Map.of(button.id(), 1), 1, min));
@@ -87,8 +88,8 @@ class Factory {
     private String calculateId(Map<String, Integer> map) {
         StringBuilder result = new StringBuilder();
         for(String k : map.keySet()) {
-            result.append(k.repeat(map.get(k)));
+            result.append((k+",").repeat(map.get(k)));
         }
-        return Arrays.stream(result.toString().split("")).sorted().collect(Collectors.joining());
+        return Arrays.stream(result.toString().split(",")).sorted().collect(Collectors.joining());
     }
 }
