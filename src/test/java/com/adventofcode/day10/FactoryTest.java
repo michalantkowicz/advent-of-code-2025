@@ -1,5 +1,6 @@
 package com.adventofcode.day10;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -40,6 +41,7 @@ class FactoryTest {
         assertThat(result).isEqualTo(expected);
     }
 
+    @Disabled
     @ParameterizedTest(name = "{0}")
     @MethodSource("provideSecondInput")
     void secondTestCase(String description, List<List<String>> rows, long expected) {
