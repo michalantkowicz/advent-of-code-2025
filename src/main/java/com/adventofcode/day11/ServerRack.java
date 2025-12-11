@@ -35,5 +35,3 @@ class ServerRack {
         return name + "_" + mandatoryNodes.stream().sorted().collect(Collectors.joining());
     }
 }
-
-// 15506631 - too low
