@@ -33,21 +33,23 @@ class Factory {
         }
     }
 
-    long resolveForJoltage(List<Machine> machines) {
-        return machines.stream().mapToLong(m -> {
-            GLOBAL_DEPTH = 10000;
-            int min = calculateMinButtonsForJoltage(m);
-            System.out.println(min);
-            return min;
-        }).sum();
-    }
+    static int GLOBAL_DEPTH;
 
-    static int GLOBAL_DEPTH = 10000;
+    long resolveForJoltage(List<Machine> machines) {
+        long result = 0L;
+        for(int i = 0; i < machines.size(); i++) {
+            GLOBAL_DEPTH = 1000;
+            int min = calculateMinButtonsForJoltage(machines.get(i));
+            System.out.println("machine " + i + ": " + min);
+            result += min;
+        }
+        return result;
+    }
 
     private int calculateMinButtonsForJoltage(Machine machine) {
         DimensionWithButtons minDimension = machine.minDimensionWithButtons();
+        if(minDimension.buttons().isEmpty()) return GLOBAL_DEPTH;
         Set<List<Button>> allPossibleCombinations = switch (minDimension.buttons().size()) {
-            case 0 -> Collections.emptySet();
             case 1 -> getAllPossibleCombinations1(minDimension);
             case 2 -> getAllPossibleCombinations2(minDimension);
             case 3 -> getAllPossibleCombinations3(minDimension);
@@ -58,13 +60,13 @@ class Factory {
             default -> throw new IllegalStateException();
         };
         for (List<Button> combination : allPossibleCombinations) {
-            Machine newMachine = machine.of(combination);
-            if (newMachine.depth() < GLOBAL_DEPTH && newMachine.isValid()) {
-                if (newMachine.isEmpty()) {
-                    GLOBAL_DEPTH = newMachine.depth();
-                } else {
+            Machine newMachine = machine.of(minDimension, combination);
+
+            if (newMachine.isEmpty()) {
+                GLOBAL_DEPTH = Math.min(GLOBAL_DEPTH, newMachine.depth());
+            }
+            else if (newMachine.depth() < GLOBAL_DEPTH && newMachine.isValid()) {
                     calculateMinButtonsForJoltage(newMachine);
-                }
             }
             //List<String> ids = combination.stream().map(Button::id).toList();
             //min = Math.min(min, inspectJoltage(machine, ids, combination, combination.size(), min));
@@ -72,28 +74,28 @@ class Factory {
         }
         return GLOBAL_DEPTH;
     } //2200 - too low
-
-    private int inspectJoltage(Machine machine, List<String> combination, List<Button> current, int depth, int maxDepth) {
-        if (depth >= maxDepth) {
-            return maxDepth;
-        } else if (machine.joltageDiagram().isValid(current)) {
-            return depth;
-        } else if (!machine.joltageDiagram().isLower(current)) {
-            return maxDepth;
-        } else {
-            int min = maxDepth;
-            for (Button button : machine.buttons()) {
-                if (!combination.contains(button.id())) {
-                    List<Button> temp = new ArrayList<>(current);
-                    temp.add(button);
-                    if (machine.joltageDiagram().isLower(temp)) {
-                        min = Math.min(min, inspectJoltage(machine, combination, temp, depth + 1, min));
-                    }
-                }
-            }
-            return min;
-        }
-    }
+//
+//    private int inspectJoltage(Machine machine, List<String> combination, List<Button> current, int depth, int maxDepth) {
+//        if (depth >= maxDepth) {
+//            return maxDepth;
+//        } else if (machine.joltageDiagram().isValid(current)) {
+//            return depth;
+//        } else if (!machine.joltageDiagram().isLower(current)) {
+//            return maxDepth;
+//        } else {
+//            int min = maxDepth;
+//            for (Button button : machine.buttons()) {
+//                if (!combination.contains(button.id())) {
+//                    List<Button> temp = new ArrayList<>(current);
+//                    temp.add(button);
+//                    if (machine.joltageDiagram().isLower(temp)) {
+//                        min = Math.min(min, inspectJoltage(machine, combination, temp, depth + 1, min));
+//                    }
+//                }
+//            }
+//            return min;
+//        }
+//    }
 
     private Set<List<Button>> getAllPossibleCombinations1(DimensionWithButtons minDimension) {
         List<Button> result = new ArrayList<>();
@@ -249,6 +251,6 @@ class Factory {
     }
 
     void insert(List<Button> set, Button button, int count) {
-        for (int i = 0; i < count; i++) set.add(button);
+        for (int i = 0; i < count; i++) set.add(new Button(button.id(), new ArrayList<>(button.indices())));
     }
 }

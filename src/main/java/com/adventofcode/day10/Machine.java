@@ -7,10 +7,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 record Machine(LightDiagram lightDiagram, List<Button> buttons, JoltageDiagram joltageDiagram, int depth) {
-    Machine of(List<Button> appliedButtons) {
+    Machine of(DimensionWithButtons minDimensions, List<Button> appliedButtons) {
         JoltageDiagram copy = joltageDiagram.copy();
         appliedButtons.forEach(b -> b.indices().forEach(i -> copy.expected()[i]--));
-        Set<String> appliedButtonsIds = appliedButtons.stream().map(Button::id).collect(Collectors.toSet());
+        Set<String> appliedButtonsIds = minDimensions.buttons().stream().map(Button::id).collect(Collectors.toSet());
         List<Button> newButtons = new ArrayList<>(buttons).stream().filter(b -> !appliedButtonsIds.contains(b.id())).toList();
         return new Machine(lightDiagram, newButtons, copy, depth + appliedButtons.size());
     }
@@ -43,7 +43,7 @@ record Machine(LightDiagram lightDiagram, List<Button> buttons, JoltageDiagram j
             }
         }
 
-        // System.out.println("Dimension " + index + " buttons count: " + minSumButtons.size());
+        if(depth == 0) System.out.println("Dimension " + index + " buttons count: " + minSumButtons.size());
 
         return new DimensionWithButtons(index, joltageDiagram.expected()[index], joltageDiagram, minSumButtons);
     }
