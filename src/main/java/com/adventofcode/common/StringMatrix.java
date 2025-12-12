@@ -47,4 +47,16 @@ public class StringMatrix implements Matrix<String> {
         String line = lines.get(y);
         lines.set(y, line.substring(0, x) + value + line.substring(x + 1));
     }
+    
+//    public StringMatrix rotate() {
+//        
+//    }
+//    
+//    public StringMatrix flipHorizontally() {
+//        
+//    }
+//
+//    public StringMatrix flipVertically() {
+//
+//    }
 }

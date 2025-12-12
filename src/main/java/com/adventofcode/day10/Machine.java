@@ -7,12 +7,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 record Machine(LightDiagram lightDiagram, List<Button> buttons, JoltageDiagram joltageDiagram, int depth) {
-    Machine of(DimensionWithButtons minDimensions, List<Button> appliedButtons) {
-        JoltageDiagram copy = joltageDiagram.copy();
-        appliedButtons.forEach(b -> b.indices().forEach(i -> copy.expected()[i]--));
+    Machine of(DimensionWithButtons minDimensions, JoltageDiagram appliedButtons) {
+        int[] r = new int[minDimensions.diagram().expected().length];
+        for(int i = 0; i < appliedButtons.expected().length; i++) r[i] = joltageDiagram.expected()[i] - appliedButtons.expected()[i];
         Set<String> appliedButtonsIds = minDimensions.buttons().stream().map(Button::id).collect(Collectors.toSet());
-        List<Button> newButtons = new ArrayList<>(buttons).stream().filter(b -> !appliedButtonsIds.contains(b.id())).toList();
-        return new Machine(lightDiagram, newButtons, copy, depth + appliedButtons.size());
+        List<Button> newButtons = buttons.stream().filter(b -> !appliedButtonsIds.contains(b.id())).toList();
+        return new Machine(lightDiagram, newButtons, new JoltageDiagram(r), depth + minDimensions.value());
     }
     
     boolean isEmpty() {
@@ -31,7 +31,6 @@ record Machine(LightDiagram lightDiagram, List<Button> buttons, JoltageDiagram j
         int index = 0;
         int minSum = Integer.MAX_VALUE;
         List<Button> minSumButtons = new ArrayList<>();
-
         for (int i = 0; i < joltageDiagram.expected().length; i++) {
             if(joltageDiagram.expected()[i] == 0) continue;
             int finalI = i;
@@ -39,7 +38,7 @@ record Machine(LightDiagram lightDiagram, List<Button> buttons, JoltageDiagram j
             if (list.size() < minSum || (list.size() == minSum && joltageDiagram.expected()[i] < joltageDiagram.expected()[index])) {
                 minSum = list.size();
                 index = i;
-                minSumButtons = new ArrayList<>(list);
+                minSumButtons = list;
             }
         }
 
