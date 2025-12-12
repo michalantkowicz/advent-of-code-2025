@@ -35,12 +35,14 @@ class Factory {
 
     long resolveForJoltage(List<Machine> machines) {
         return machines.stream().mapToLong(m -> {
-            GLOBAL_DEPTH = 200;
-            return calculateMinButtonsForJoltage(m);
+            GLOBAL_DEPTH = 10000;
+            int min = calculateMinButtonsForJoltage(m);
+            System.out.println(min);
+            return min;
         }).sum();
     }
 
-    static int GLOBAL_DEPTH = 200;
+    static int GLOBAL_DEPTH = 10000;
 
     private int calculateMinButtonsForJoltage(Machine machine) {
         DimensionWithButtons minDimension = machine.minDimensionWithButtons();
@@ -68,7 +70,6 @@ class Factory {
             //min = Math.min(min, inspectJoltage(machine, ids, combination, combination.size(), min));
             // min = Math.min(min, inspectJoltage(machine, Collections.emptyList(), Collections.emptyList(), 0, min));
         }
-        
         return GLOBAL_DEPTH;
     } //2200 - too low
 
