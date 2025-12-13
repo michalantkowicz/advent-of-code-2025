@@ -1,6 +1,5 @@
 package com.adventofcode.day10;
 
-import java.nio.channels.FileLock;
 import java.util.*;
 
 class Factory {
@@ -38,7 +37,7 @@ class Factory {
 
     long resolveForJoltage(List<Machine> machines) {
         long result = 0L;
-        for(int i = 0; i < machines.size(); i++) {
+        for(int i = 53; i < machines.size(); i++) {
             GLOBAL_DEPTH = 1000;
             int min = calculateMinButtonsForJoltage(machines.get(i));
             System.out.println("machine " + i + ": " + min);
@@ -50,38 +49,29 @@ class Factory {
     private int calculateMinButtonsForJoltage(Machine machine) {
         DimensionWithButtons minDimension = machine.minDimensionWithButtons();
         if(minDimension.buttons().isEmpty()) return GLOBAL_DEPTH;
-        if(machine.depth() >= GLOBAL_DEPTH) return GLOBAL_DEPTH;
-        if(minDimension.buttons().size() == 1) {
-            getAllPossibleCombinations1(machine, minDimension);
-        } else if(minDimension.buttons().size() == 2) {
-            getAllPossibleCombinations2(machine, minDimension);
-        } else if(minDimension.buttons().size() == 3) {
-            getAllPossibleCombinations3(machine, minDimension);
-        } else if(minDimension.buttons().size() == 4) {
-            getAllPossibleCombinations4(machine, minDimension);
-        } else if(minDimension.buttons().size() == 5) {
-            getAllPossibleCombinations5(machine, minDimension);
-        } else if(minDimension.buttons().size() == 6) {
-            getAllPossibleCombinations6(machine, minDimension);
-        } else if(minDimension.buttons().size() == 7) {
-            getAllPossibleCombinations7(machine, minDimension);
-        } else {
-            throw new IllegalStateException();
+        Set<JoltageDiagram> allPossibleCombinations = switch (minDimension.buttons().size()) {
+            case 1 -> getAllPossibleCombinations1(minDimension);
+            case 2 -> getAllPossibleCombinations2(minDimension);
+            case 3 -> getAllPossibleCombinations3(minDimension);
+            case 4 -> getAllPossibleCombinations4(minDimension);
+            case 5 -> getAllPossibleCombinations5(minDimension);
+            case 6 -> getAllPossibleCombinations6(minDimension);
+            case 7 -> getAllPossibleCombinations7(minDimension);
+            default -> throw new IllegalStateException();
+        };
+        for (JoltageDiagram combination : allPossibleCombinations) {
+            Machine newMachine = machine.of(minDimension, combination);
+
+            if (newMachine.isEmpty()) {
+                GLOBAL_DEPTH = Math.min(GLOBAL_DEPTH, newMachine.depth());
+            }
+            else if (newMachine.depth() < GLOBAL_DEPTH && newMachine.isValid()) {
+                    calculateMinButtonsForJoltage(newMachine);
+            }
+            //List<String> ids = combination.stream().map(Button::id).toList();
+            //min = Math.min(min, inspectJoltage(machine, ids, combination, combination.size(), min));
+            // min = Math.min(min, inspectJoltage(machine, Collections.emptyList(), Collections.emptyList(), 0, min));
         }
-        
-//        for (JoltageDiagram combination : allPossibleCombinations) {
-//            Machine newMachine = machine.of(minDimension, combination);
-//
-//            if (newMachine.isEmpty()) {
-//                GLOBAL_DEPTH = Math.min(GLOBAL_DEPTH, newMachine.depth());
-//            }
-//            else if (newMachine.depth() < GLOBAL_DEPTH && newMachine.isValid()) {
-//                    calculateMinButtonsForJoltage(newMachine);
-//            }
-//            //List<String> ids = combination.stream().map(Button::id).toList();
-//            //min = Math.min(min, inspectJoltage(machine, ids, combination, combination.size(), min));
-//            // min = Math.min(min, inspectJoltage(machine, Collections.emptyList(), Collections.emptyList(), 0, min));
-//        }
         return GLOBAL_DEPTH;
     } //2200 - too low
 //
@@ -106,98 +96,84 @@ class Factory {
 //            return min;
 //        }
 //    }
-    
-    private void getAllPossibleCombinations1(Machine machine, DimensionWithButtons minDimension) {
+
+    private Set<JoltageDiagram> getAllPossibleCombinations1(DimensionWithButtons minDimension) {
         int[] r = new int[minDimension.diagram().expected().length];
         minDimension.buttons().get(0).indices().forEach(i -> r[i] = minDimension.value());
-
-        Machine newMachine = machine.of(minDimension, new JoltageDiagram(r));
-        if(newMachine.depth() >= GLOBAL_DEPTH) return;
-        if (newMachine.isEmpty()) {
-            GLOBAL_DEPTH = Math.min(GLOBAL_DEPTH, newMachine.depth());
-            return;
-        }
-        GLOBAL_DEPTH = Math.min(GLOBAL_DEPTH, calculateMinButtonsForJoltage(newMachine));
+        return Set.of(new JoltageDiagram(r));
     }
 
-    private void getAllPossibleCombinations2(Machine machine, DimensionWithButtons minDimension) {
-//        Set<JoltageDiagram> result = new HashSet<>();
+    private Set<JoltageDiagram> getAllPossibleCombinations2(DimensionWithButtons minDimension) {
+        Set<JoltageDiagram> result = new HashSet<>();
         for (int i = 0; i <= minDimension.value(); i++) {
-            for (int i1 = 0; i1 <= minDimension.value() - i; i1++) {
+            for (int i1 = 0; i1 <= minDimension.value(); i1++) {
+                if (i + i1 == minDimension.value()) {
                     int[] r = new int[minDimension.diagram().expected().length];
                     for(int x: minDimension.buttons().get(0).indices()) r[x] += i;
                     for(int x: minDimension.buttons().get(1).indices()) r[x] += i1;
                     JoltageDiagram temp = new JoltageDiagram(r);
-                    Machine newMachine = machine.of(minDimension, temp);
-                    if(machine.depth() >= GLOBAL_DEPTH || newMachine.depth() >= GLOBAL_DEPTH) return;
-                    if (newMachine.isEmpty()) {
-                        GLOBAL_DEPTH = Math.min(GLOBAL_DEPTH, newMachine.depth());
-                        return;
-                    } else if (minDimension.diagram().isLower(temp)) {
-                        GLOBAL_DEPTH = Math.min(GLOBAL_DEPTH, calculateMinButtonsForJoltage(newMachine));
+                    if (minDimension.diagram().isLower(temp)) {
+                        result.add(temp);
                     }
+                }
             }
         }
+        return result;
     }
 
-    private void getAllPossibleCombinations3(Machine machine, DimensionWithButtons minDimension) {
-//        Set<JoltageDiagram> result = new HashSet<>();
+    private Set<JoltageDiagram> getAllPossibleCombinations3(DimensionWithButtons minDimension) {
+        Set<JoltageDiagram> result = new HashSet<>();
         for (int i = 0; i <= minDimension.value(); i++) {
-            for (int i1 = 0; i1 <= minDimension.value() - i; i1++) {
-                for (int i2 = 0; i2 <= minDimension.value() - i -i1; i2++) {
+            for (int i1 = 0; i1 <= minDimension.value(); i1++) {
+                for (int i2 = 0; i2 <= minDimension.value(); i2++) {
+                    if (i + i1 + i2 == minDimension.value()) {
                         int[] r = new int[minDimension.diagram().expected().length];
                         for(int x: minDimension.buttons().get(0).indices()) r[x] += i;
                         for(int x: minDimension.buttons().get(1).indices()) r[x] += i1;
                         for(int x: minDimension.buttons().get(2).indices()) r[x] += i2;
                         JoltageDiagram temp = new JoltageDiagram(r);
-                        Machine newMachine = machine.of(minDimension, temp);
-                        if(machine.depth() >= GLOBAL_DEPTH ||newMachine.depth() >= GLOBAL_DEPTH) return;
-                        if (newMachine.isEmpty()) {
-                            GLOBAL_DEPTH = Math.min(GLOBAL_DEPTH, newMachine.depth());
-                            return;
-                        } else if (minDimension.diagram().isLower(temp)) {
-                            GLOBAL_DEPTH = Math.min(GLOBAL_DEPTH, calculateMinButtonsForJoltage(newMachine));
+                        if (minDimension.diagram().isLower(temp)) {
+                            result.add(temp);
                         }
+                    }
                 }
             }
         }
-//        return result;
+        return result;
     }
 
-    private void getAllPossibleCombinations4(Machine machine, DimensionWithButtons minDimension) {
-//        Set<JoltageDiagram> result = new HashSet<>();
+    private Set<JoltageDiagram> getAllPossibleCombinations4(DimensionWithButtons minDimension) {
+        Set<JoltageDiagram> result = new HashSet<>();
         for (int i = 0; i <= minDimension.value(); i++) {
-            for (int i1 = 0; i1 <= minDimension.value()- i; i1++) {
-                for (int i2 = 0; i2 <= minDimension.value()-i-i1; i2++) {
-                    for (int i3 = 0; i3 <= minDimension.value()-i-i1-i2; i3++) {
+            for (int i1 = 0; i1 <= minDimension.value(); i1++) {
+                for (int i2 = 0; i2 <= minDimension.value(); i2++) {
+                    for (int i3 = 0; i3 <= minDimension.value(); i3++) {
+                        if (i + i1 + i2 + i3 == minDimension.value()) {
                             int[] r = new int[minDimension.diagram().expected().length];
                             for(int x: minDimension.buttons().get(0).indices()) r[x] += i;
                             for(int x: minDimension.buttons().get(1).indices()) r[x] += i1;
                             for(int x: minDimension.buttons().get(2).indices()) r[x] += i2;
                             for(int x: minDimension.buttons().get(3).indices()) r[x] += i3;
                             JoltageDiagram temp = new JoltageDiagram(r);
-                            Machine newMachine = machine.of(minDimension, temp);
-                            if(machine.depth() >= GLOBAL_DEPTH ||newMachine.depth() >= GLOBAL_DEPTH) return;
-                            if (newMachine.isEmpty()) {
-                                GLOBAL_DEPTH = Math.min(GLOBAL_DEPTH, newMachine.depth());
-                                return;
-                            } else if (minDimension.diagram().isLower(temp)) {
-                                GLOBAL_DEPTH = Math.min(GLOBAL_DEPTH, calculateMinButtonsForJoltage(newMachine));
+                            if (minDimension.diagram().isLower(temp)) {
+                                result.add(temp);
                             }
+                        }
                     }
                 }
             }
         }
-//        return result;
+        return result;
     }
 
-    private void getAllPossibleCombinations5(Machine machine, DimensionWithButtons minDimension) {
-//        Set<JoltageDiagram> result = new HashSet<>();
+    private Set<JoltageDiagram> getAllPossibleCombinations5(DimensionWithButtons minDimension) {
+        Set<JoltageDiagram> result = new HashSet<>();
         for (int i = 0; i <= minDimension.value(); i++) {
-            for (int i1 = 0; i1 <= minDimension.value()-i; i1++) {
-                for (int i2 = 0; i2 <= minDimension.value()-i-i1; i2++) {
-                    for (int i3 = 0; i3 <= minDimension.value()-i-i1-i2; i3++) {
-                        for (int i4 = 0; i4 <= minDimension.value()-i-i1-i2-i3; i4++) {
+            for (int i1 = 0; i1 <= minDimension.value(); i1++) {
+                for (int i2 = 0; i2 <= minDimension.value(); i2++) {
+                    for (int i3 = 0; i3 <= minDimension.value(); i3++) {
+                        for (int i4 = 0; i4 <= minDimension.value(); i4++) {
+                            if (i + i1 + i2 + i3 + i4 == minDimension.value()) {
                                 int[] r = new int[minDimension.diagram().expected().length];
                                 for(int x: minDimension.buttons().get(0).indices()) r[x] += i;
                                 for(int x: minDimension.buttons().get(1).indices()) r[x] += i1;
@@ -205,30 +181,27 @@ class Factory {
                                 for(int x: minDimension.buttons().get(3).indices()) r[x] += i3;
                                 for(int x: minDimension.buttons().get(4).indices()) r[x] += i4;
                                 JoltageDiagram temp = new JoltageDiagram(r);
-                                Machine newMachine = machine.of(minDimension, temp);
-                                if(machine.depth() >= GLOBAL_DEPTH ||newMachine.depth() >= GLOBAL_DEPTH) return;
-                                if (newMachine.isEmpty()) {
-                                    GLOBAL_DEPTH = Math.min(GLOBAL_DEPTH, newMachine.depth());
-                                    return;
-                                } else if (minDimension.diagram().isLower(temp)) {
-                                    GLOBAL_DEPTH = Math.min(GLOBAL_DEPTH, calculateMinButtonsForJoltage(newMachine));
+                                if (minDimension.diagram().isLower(temp)) {
+                                    result.add(temp);
                                 }
+                            }
                         }
                     }
                 }
             }
         }
-//        return result;
+        return result;
     }
 
-    private void getAllPossibleCombinations6(Machine machine, DimensionWithButtons minDimension) {
-//        Set<JoltageDiagram> result = new HashSet<>();
+    private Set<JoltageDiagram> getAllPossibleCombinations6(DimensionWithButtons minDimension) {
+        Set<JoltageDiagram> result = new HashSet<>();
         for (int i = 0; i <= minDimension.value(); i++) {
-            for (int i1 = 0; i1 <= minDimension.value()-i; i1++) {
-                for (int i2 = 0; i2 <= minDimension.value()-i-i1; i2++) {
-                    for (int i3 = 0; i3 <= minDimension.value()-i-i1-i2; i3++) {
-                        for (int i4 = 0; i4 <= minDimension.value()-i-i1-i2-i3; i4++) {
-                            for (int i5 = 0; i5 <= minDimension.value()-i-i1-i2-i3-i4; i5++) {
+            for (int i1 = 0; i1 <= minDimension.value(); i1++) {
+                for (int i2 = 0; i2 <= minDimension.value(); i2++) {
+                    for (int i3 = 0; i3 <= minDimension.value(); i3++) {
+                        for (int i4 = 0; i4 <= minDimension.value(); i4++) {
+                            for (int i5 = 0; i5 <= minDimension.value(); i5++) {
+                                if (i + i1 + i2 + i3 + i4 + i5 == minDimension.value()) {
                                     int[] r = new int[minDimension.diagram().expected().length];
                                     for(int x: minDimension.buttons().get(0).indices()) r[x] += i;
                                     for(int x: minDimension.buttons().get(1).indices()) r[x] += i1;
@@ -237,32 +210,29 @@ class Factory {
                                     for(int x: minDimension.buttons().get(4).indices()) r[x] += i4;
                                     for(int x: minDimension.buttons().get(5).indices()) r[x] += i5;
                                     JoltageDiagram temp = new JoltageDiagram(r);
-                                    Machine newMachine = machine.of(minDimension, temp);
-                                    if(machine.depth() >= GLOBAL_DEPTH ||newMachine.depth() >= GLOBAL_DEPTH) return;
-                                    if (newMachine.isEmpty()) {
-                                        GLOBAL_DEPTH = Math.min(GLOBAL_DEPTH, newMachine.depth());
-                                        return;
-                                    } else if (minDimension.diagram().isLower(temp)) {
-                                        GLOBAL_DEPTH = Math.min(GLOBAL_DEPTH, calculateMinButtonsForJoltage(newMachine));
+                                    if (minDimension.diagram().isLower(temp)) {
+                                        result.add(temp);
                                     }
+                                }
                             }
                         }
                     }
                 }
             }
         }
-//        return result;
+        return result;
     }
 
-    private void getAllPossibleCombinations7(Machine machine, DimensionWithButtons minDimension) {
+    private Set<JoltageDiagram> getAllPossibleCombinations7(DimensionWithButtons minDimension) {
         Set<JoltageDiagram> result = new HashSet<>();
         for (int i = 0; i <= minDimension.value(); i++) {
-            for (int i1 = 0; i1 <= minDimension.value()-i; i1++) {
-                for (int i2 = 0; i2 <= minDimension.value()-i-i1; i2++) {
-                    for (int i3 = 0; i3 <= minDimension.value()-i-i1-i2; i3++) {
-                        for (int i4 = 0; i4 <= minDimension.value()-i-i1-i2-i3; i4++) {
-                            for (int i5 = 0; i5 <= minDimension.value()-i-i1-i2-i3-i4; i5++) {
-                                for (int i6 = 0; i6 <= minDimension.value()-i-i1-i2-i3-i4-i5; i6++) {
+            for (int i1 = 0; i1 <= minDimension.value(); i1++) {
+                for (int i2 = 0; i2 <= minDimension.value(); i2++) {
+                    for (int i3 = 0; i3 <= minDimension.value(); i3++) {
+                        for (int i4 = 0; i4 <= minDimension.value(); i4++) {
+                            for (int i5 = 0; i5 <= minDimension.value(); i5++) {
+                                for (int i6 = 0; i6 <= minDimension.value(); i6++) {
+                                    if (i + i1 + i2 + i3 + i4 + i5 + i6 == minDimension.value()) {
                                         int[] r = new int[minDimension.diagram().expected().length];
                                         for(int x: minDimension.buttons().get(0).indices()) r[x] += i;
                                         for(int x: minDimension.buttons().get(1).indices()) r[x] += i1;
@@ -272,21 +242,21 @@ class Factory {
                                         for(int x: minDimension.buttons().get(5).indices()) r[x] += i5;
                                         for(int x: minDimension.buttons().get(6).indices()) r[x] += i6;
                                         JoltageDiagram temp = new JoltageDiagram(r);
-                                        Machine newMachine = machine.of(minDimension, temp);
-                                        if(machine.depth() >= GLOBAL_DEPTH ||newMachine.depth() >= GLOBAL_DEPTH) return;
-                                        if (newMachine.isEmpty()) {
-                                            GLOBAL_DEPTH = Math.min(GLOBAL_DEPTH, newMachine.depth());
-                                            return;
-                                        } else if (minDimension.diagram().isLower(temp)) {
-                                            GLOBAL_DEPTH = Math.min(GLOBAL_DEPTH, calculateMinButtonsForJoltage(newMachine));
+                                        if (minDimension.diagram().isLower(temp)) {
+                                            result.add(temp);
                                         }
                                     }
+                                }
                             }
                         }
                     }
                 }
             }
         }
-//        return result;
+        return result;
+    }
+
+    void insert(List<Button> set, Button button, int count) {
+        for (int i = 0; i < count; i++) set.add(new Button(button.id(), new ArrayList<>(button.indices())));
     }
 }

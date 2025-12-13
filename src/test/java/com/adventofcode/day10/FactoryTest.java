@@ -76,7 +76,7 @@ class FactoryTest {
     private static Stream<Arguments> provideSecondInput() {
         return Stream.of(
                 Arguments.of("0.in", getRows("/day10/0.in", " "), 33),
-                Arguments.of("1.in", getRows("/day10/2.in", " "), -1L)
+                Arguments.of("1.in", getRows("/day10/1.in", " "), 22430)
         );
     }
 }
