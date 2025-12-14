@@ -90,4 +90,93 @@ public class StringMatrixTest {
                 new Pair<>(1, 1)
         );
     }
+
+    @Test
+    public void shouldBeEqualToInput() {
+        // given
+        String input = """
+                abcd
+                efgh
+                ijkl
+                mnop""";
+        Matrix<String> matrix = new StringMatrix(input);
+
+        // then
+        Assertions.assertThat(matrix.toString()).isEqualTo(input);
+    }
+
+    @Test
+    public void shouldRotateAndShouldNotModifyOriginal() {
+        // given
+        String input = """
+                abcd
+                efgh
+                ijkl
+                mnop""";
+
+        StringMatrix original = new StringMatrix(input);
+
+        // when
+        StringMatrix rotated = original.rotate();
+
+        // then
+        assertThat(original.toString()).isEqualTo(input);
+        assertThat(rotated.toString()).isEqualTo(
+                """
+                        miea
+                        njfb
+                        okgc
+                        plhd"""
+        );
+    }
+
+    @Test
+    public void shouldFlipHorizontallyAndShouldNotModifyOriginal() {
+        // given
+        String input = """
+                abcd
+                efgh
+                ijkl
+                mnop""";
+
+        StringMatrix original = new StringMatrix(input);
+
+        // when
+        StringMatrix flippedHorizontally = original.flipHorizontally();
+
+        // then
+        assertThat(original.toString()).isEqualTo(input);
+        assertThat(flippedHorizontally.toString()).isEqualTo(
+                """
+                        mnop
+                        ijkl
+                        efgh
+                        abcd"""
+        );
+    }
+
+    @Test
+    public void shouldFlipVerticallyAndShouldNotModifyOriginal() {
+        // given
+        String input = """
+                abcd
+                efgh
+                ijkl
+                mnop""";
+
+        StringMatrix original = new StringMatrix(input);
+
+        // when
+        StringMatrix flippedVertically = original.flipVertically();
+
+        // then
+        assertThat(original.toString()).isEqualTo(input);
+        assertThat(flippedVertically.toString()).isEqualTo(
+                """
+                        dcba
+                        hgfe
+                        lkji
+                        ponm"""
+        );
+    }
 }

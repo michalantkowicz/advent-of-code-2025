@@ -5,7 +5,7 @@ import java.util.List;
 
 public class StringMatrix implements Matrix<String> {
     private final List<String> lines = new ArrayList<>();
-
+    
     public StringMatrix(String string) {
         string.lines().forEach(line -> {
             lines.add(line);
@@ -15,6 +15,14 @@ public class StringMatrix implements Matrix<String> {
                         " while the first line has length " + lines.getFirst().length());
             }
         });
+    }
+
+    private StringMatrix(List<String> lines) {
+        this.lines.addAll(lines);
+    }
+
+    public StringMatrix(StringMatrix other) {
+        this(other.lines);
     }
 
     @Override
@@ -47,16 +55,30 @@ public class StringMatrix implements Matrix<String> {
         String line = lines.get(y);
         lines.set(y, line.substring(0, x) + value + line.substring(x + 1));
     }
-    
-//    public StringMatrix rotate() {
-//        
-//    }
-//    
-//    public StringMatrix flipHorizontally() {
-//        
-//    }
-//
-//    public StringMatrix flipVertically() {
-//
-//    }
+
+    public StringMatrix rotate() {
+        List<String> newLines = new ArrayList<>();
+        for (int x = 0; x < this.width(); x++) {
+            StringBuilder line = new StringBuilder();
+            for (int y = this.height() - 1; y >= 0; y--) {
+                line.append(lines.get(y).charAt(x));
+            }
+            newLines.add(line.toString());
+        }
+        return new StringMatrix(newLines);
+    }
+
+    public StringMatrix flipHorizontally() {
+        return new StringMatrix(lines.reversed());
+    }
+
+    public StringMatrix flipVertically() {
+        List<String> newLines = lines.stream().map(l -> new StringBuilder(l).reverse().toString()).toList();
+        return new StringMatrix(newLines);
+    }
+
+    @Override
+    public String toString() {
+        return String.join("\n", lines);
+    }
 }
