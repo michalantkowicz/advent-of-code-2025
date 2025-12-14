@@ -15,7 +15,7 @@ import static com.adventofcode.TestUtils.getRows;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class FactoryTest {
-    @Disabled
+    @Disabled(">7min of execution")
     @ParameterizedTest(name = "{0}")
     @MethodSource("provideFirstInput")
     void firstTestCase(String description, List<List<String>> rows, long expected) {
@@ -31,6 +31,7 @@ class FactoryTest {
         assertThat(result).isEqualTo(expected);
     }
 
+    @Disabled(">3h of execution")
     @ParameterizedTest(name = "{0}")
     @MethodSource("provideSecondInput")
     void secondTestCase(String description, List<List<String>> rows, long expected) {

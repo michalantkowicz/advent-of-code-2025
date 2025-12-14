@@ -1,6 +1,9 @@
 package com.adventofcode.day10;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 class Factory {
     long resolve(List<Machine> machines) {
@@ -68,38 +71,13 @@ class Factory {
             else if (newMachine.depth() < GLOBAL_DEPTH && newMachine.isValid()) {
                     calculateMinButtonsForJoltage(newMachine);
             }
-            //List<String> ids = combination.stream().map(Button::id).toList();
-            //min = Math.min(min, inspectJoltage(machine, ids, combination, combination.size(), min));
-            // min = Math.min(min, inspectJoltage(machine, Collections.emptyList(), Collections.emptyList(), 0, min));
         }
         return GLOBAL_DEPTH;
-    } //2200 - too low
-//
-//    private int inspectJoltage(Machine machine, List<String> combination, List<Button> current, int depth, int maxDepth) {
-//        if (depth >= maxDepth) {
-//            return maxDepth;
-//        } else if (machine.joltageDiagram().isValid(current)) {
-//            return depth;
-//        } else if (!machine.joltageDiagram().isLower(current)) {
-//            return maxDepth;
-//        } else {
-//            int min = maxDepth;
-//            for (Button button : machine.buttons()) {
-//                if (!combination.contains(button.id())) {
-//                    List<Button> temp = new ArrayList<>(current);
-//                    temp.add(button);
-//                    if (machine.joltageDiagram().isLower(temp)) {
-//                        min = Math.min(min, inspectJoltage(machine, combination, temp, depth + 1, min));
-//                    }
-//                }
-//            }
-//            return min;
-//        }
-//    }
+    }
 
     private Set<JoltageDiagram> getAllPossibleCombinations1(DimensionWithButtons minDimension) {
         int[] r = new int[minDimension.diagram().expected().length];
-        minDimension.buttons().get(0).indices().forEach(i -> r[i] = minDimension.value());
+        minDimension.buttons().getFirst().indices().forEach(i -> r[i] = minDimension.value());
         return Set.of(new JoltageDiagram(r));
     }
 
@@ -254,9 +232,5 @@ class Factory {
             }
         }
         return result;
-    }
-
-    void insert(List<Button> set, Button button, int count) {
-        for (int i = 0; i < count; i++) set.add(new Button(button.id(), new ArrayList<>(button.indices())));
     }
 }
